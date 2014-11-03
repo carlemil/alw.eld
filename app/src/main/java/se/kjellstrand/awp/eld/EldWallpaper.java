@@ -14,10 +14,11 @@ import android.view.SurfaceHolder;
  */
 public class EldWallpaper extends WallpaperService {
 
-    EldGenerator eldGenerator = new EldGenerator();
+    EldGenerator eldGenerator = null;
 
     @Override
     public Engine onCreateEngine() {
+        eldGenerator = new EldGenerator(getApplicationContext(), 200, 200);
         return new EldWPEngine();
     }
 
