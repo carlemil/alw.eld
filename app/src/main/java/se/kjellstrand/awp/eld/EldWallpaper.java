@@ -14,6 +14,7 @@ import android.view.SurfaceHolder;
  */
 public class EldWallpaper extends WallpaperService {
 
+    EldGenerator eldGenerator = new EldGenerator();
 
     @Override
     public Engine onCreateEngine() {
@@ -93,19 +94,22 @@ public class EldWallpaper extends WallpaperService {
         }
 
         private void draw(Canvas c) {
-            int size = 200;
-            Log.d(TAG, "Iteration: ");
-            Paint paint = new Paint();
-            paint.setColor((int)(Math.random()*256+
-                    Math.random()*256*256+
-                    Math.random()*256*256*256+
-                    Math.random()*256*256*256*256));
+//            int size = 200;
+//            Log.d(TAG, "Iteration: ");
+//            Paint paint = new Paint();
+//            paint.setColor((int)(Math.random()*256+
+//                    Math.random()*256*256+
+//                    Math.random()*256*256*256+
+//                    Math.random()*256*256*256*256));
+//
+//            c.drawLine(
+//                    (float)(Math.random()*800f),
+//                    (float)(Math.random()*800f),
+//                    (float)(Math.random()*800f),
+//                    (float)(Math.random()*800f), paint);
 
-            c.drawLine(
-                    (float)(Math.random()*800f),
-                    (float)(Math.random()*800f),
-                    (float)(Math.random()*800f),
-                    (float)(Math.random()*800f), paint);
+            Bitmap bitmap = eldGenerator.getEldadBitmap();
+            c.drawBitmap(bitmap, 0f, 0f, new Paint());
         }
 
         protected void iteration() {
