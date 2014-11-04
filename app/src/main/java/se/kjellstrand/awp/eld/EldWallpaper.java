@@ -110,7 +110,10 @@ public class EldWallpaper extends WallpaperService {
 //                    (float)(Math.random()*800f), paint);
 
             Bitmap bitmap = eldGenerator.getEldadBitmap();
-            c.drawBitmap(bitmap, 0f, 0f, new Paint());
+            Paint paint = new Paint();
+            paint.setColor(0xffffffff);
+            c.drawBitmap(bitmap, 0f, 0f, paint);
+            Log.d(TAG, "draw...");
         }
 
         protected void iteration() {
