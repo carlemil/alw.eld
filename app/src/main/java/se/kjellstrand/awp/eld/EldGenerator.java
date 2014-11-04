@@ -6,12 +6,14 @@ import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicConvolve3x3;
+import android.util.Log;
 
 /**
  * Created by Carl-Emil Kjellstrand on 11/3/14.
  */
 public class EldGenerator {
 
+    private static final String TAG = EldGenerator.class.getCanonicalName();
     Element elementU8;
     Element elementRGBA;
     private Bitmap bitmap;
@@ -41,12 +43,6 @@ public class EldGenerator {
 
         allocationIn = Allocation.createSized(rs, elementU8, (width * height));
         allocationOut = Allocation.createSized(rs, elementU8, (width * height));
-        byte[] f = new byte[width*height];
-        for(int x=0; x < width; x++){
-            f[(height*(width-1))+x] = (byte)(Math.random()*100+155);
-        }
-        allocationIn.copyFrom(f);
-
 
         bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
     }
@@ -56,13 +52,12 @@ public class EldGenerator {
 
         byte[] eldValues = new byte[width*height];
         allocationOut.copyTo(eldValues);
-        for(int y=0; y < height; y++) {
-            for(int x=0; x < width; x++) {
-                eldValues[x+(y*width)] = (byte) (Math.random() * 100 + 155);
+        //for(int y=0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                eldValues[((height-1)*width) + x] = (byte) (Math.random() * 255);
             }
-        }
-        allocationIn.copyFrom(eldValues);
-
+        //}
+        allocationOut.copyFrom(eldValues);
 
         //renderEld();
 
@@ -79,7 +74,7 @@ public class EldGenerator {
 
         for(int y=0; y < height; y++) {
             for(int x=0; x < width; x++){
-                int c = (int)(eldValues[x+(y*width)])&255;
+                int c = eldValues[x+(y*width)];
                 c += c * 256;
                 c += c * 256;
                 bitmap.setPixel(x,y, c);

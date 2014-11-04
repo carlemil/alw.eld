@@ -112,8 +112,12 @@ public class EldWallpaper extends WallpaperService {
             Bitmap bitmap = eldGenerator.getEldadBitmap();
             Paint paint = new Paint();
             paint.setColor(0xffffffff);
+
             c.drawBitmap(bitmap, 0f, 0f, paint);
-            Log.d(TAG, "draw...");
+
+            c.drawLine(0,100,200,100,paint);
+
+            //Log.d(TAG, "draw...");
         }
 
         protected void iteration() {
