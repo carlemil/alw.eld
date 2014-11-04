@@ -36,9 +36,9 @@ public class EldGenerator {
         scriptIntrinsicConvolve3x3 = ScriptIntrinsicConvolve3x3.create(rs, elementU8);
 
         float[] matrix = new float[]{
-                0f, 0f, 0f,
-                1f, 1f, 1f,
-                0f, 1f, 0f};
+                0000f, 0000f, 0000f,
+                0.24f, 0.74f, 0.24f,
+                0000f, 0.24f, 0000f};
         scriptIntrinsicConvolve3x3.setCoefficients(matrix);
 
         allocationIn = Allocation.createSized(rs, elementU8, (width * height));
@@ -57,9 +57,9 @@ public class EldGenerator {
                 eldValues[((height-1)*width) + x] = (byte) (Math.random() * 255);
             }
         //}
-        allocationOut.copyFrom(eldValues);
+        allocationIn.copyFrom(eldValues);
 
-        //renderEld();
+        renderEld();
 
         renderColors();
 
