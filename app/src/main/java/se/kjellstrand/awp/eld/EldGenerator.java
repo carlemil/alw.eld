@@ -6,6 +6,7 @@ import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicConvolve3x3;
+import android.renderscript.Type;
 import android.util.Log;
 
 /**
@@ -41,7 +42,9 @@ public class EldGenerator {
                 0000f, 0.24f, 0000f};
         scriptIntrinsicConvolve3x3.setCoefficients(matrix);
 
-        allocationIn = Allocation.createSized(rs, elementU8, (width * height));
+        //allocationIn = Allocation.createSized(rs, elementU8, (width * height));
+        Type tu8_2d = Type.createXY(rs, elementU8, width, height);
+        allocationIn = Allocation.createTyped(rs, tu8_2d);
         allocationOut = Allocation.createSized(rs, elementU8, (width * height));
 
         bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);

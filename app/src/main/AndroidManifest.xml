@@ -2,7 +2,7 @@
     package="se.kjellstrand.awp.eld">
 
     <uses-sdk
-        android:minSdkVersion="18"
+        android:minSdkVersion="21"
         android:targetSdkVersion="21" />
 
     <application android:label="@string/app_name"
