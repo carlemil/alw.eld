@@ -115,9 +115,9 @@ public class EldWallpaper extends WallpaperService {
 
             c.drawBitmap(bitmap, 0f, 0f, paint);
 
-            c.drawLine(0,100,200,100,paint);
+            //c.drawLine(0,100,200,100,paint);
 
-            //Log.d(TAG, "draw...");
+            Log.d(TAG, "draw...");
         }
 
         protected void iteration() {

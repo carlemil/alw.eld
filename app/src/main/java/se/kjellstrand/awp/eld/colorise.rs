@@ -7,7 +7,7 @@ uchar *color;
 
 void root(const float *in, float *out, uint32_t x, uint32_t y) {
 
-    float f = in[]
+    float f = in[x][y];
     out->b = color[c*3+0];
     out->g = color[c*3+1];
     out->r = color[c*3+2];

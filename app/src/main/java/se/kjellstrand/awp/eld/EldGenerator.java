@@ -2,6 +2,7 @@ package se.kjellstrand.awp.eld;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.RenderScript;
@@ -20,6 +21,8 @@ public class EldGenerator {
     private Bitmap bitmap;
     private Allocation allocationIn;
     private Allocation allocationOut;
+    private Allocation allocationBmp;
+
     private ScriptIntrinsicConvolve3x3 scriptIntrinsicConvolve3x3;
     private int width;
     private int height;
@@ -37,38 +40,42 @@ public class EldGenerator {
         scriptIntrinsicConvolve3x3 = ScriptIntrinsicConvolve3x3.create(rs, elementU8);
 
         float[] matrix = new float[]{
+                0000f, 0001f, 0000f,
                 0000f, 0000f, 0000f,
-                0.24f, 0.74f, 0.24f,
-                0000f, 0.24f, 0000f};
+                0000f, 0000f, 0000f};
         scriptIntrinsicConvolve3x3.setCoefficients(matrix);
 
-        //allocationIn = Allocation.createSized(rs, elementU8, (width * height));
+        bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+
         Type tu8_2d = Type.createXY(rs, elementU8, width, height);
         allocationIn = Allocation.createTyped(rs, tu8_2d);
-        allocationOut = Allocation.createSized(rs, elementU8, (width * height));
+        allocationOut = Allocation.createTyped(rs, tu8_2d);
+        allocationBmp = Allocation.createFromBitmap(rs, bitmap);
 
-        bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
     }
 
     public Bitmap getEldadBitmap() {
+        seedEldAsLine();
+        renderEld();
+        renderColors();
+        //swapAllocations();
+        return bitmap;
+    }
 
-
+    private void seedEldAsLine() {
         byte[] eldValues = new byte[width*height];
         allocationOut.copyTo(eldValues);
-        //for(int y=0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                eldValues[((height-1)*width) + x] = (byte) (Math.random() * 255);
-            }
-        //}
+        for(int y=height-14; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            eldValues[(y*width) + x] = (byte) (Math.random() * 255);
+        }
+        }
         allocationIn.copyFrom(eldValues);
+    }
 
-        renderEld();
-
-        renderColors();
-
-        //swapAllocations();
-
-        return bitmap;
+    private void renderEld() {
+        scriptIntrinsicConvolve3x3.setInput(allocationIn);
+        scriptIntrinsicConvolve3x3.forEach(allocationOut);
     }
 
     private void renderColors() {
@@ -77,18 +84,14 @@ public class EldGenerator {
 
         for(int y=0; y < height; y++) {
             for(int x=0; x < width; x++){
-                int c = eldValues[x+(y*width)];
-                c += c * 256;
-                c += c * 256;
-                bitmap.setPixel(x,y, c);
+                byte c = eldValues[x+(y*width)];
+
+                bitmap.setPixel(x, y, Color.argb(255,255,0,c));
             }
         }
+
     }
 
-    private void renderEld() {
-        scriptIntrinsicConvolve3x3.setInput(allocationIn);
-        scriptIntrinsicConvolve3x3.forEach(allocationOut);
-    }
 
     private void swapAllocations() {
         // Swap buffers
