@@ -36,6 +36,7 @@ public class EldWallpaper extends WallpaperService {
         };
 
         private boolean mVisible;
+        private int frame = 0;
 
         @Override
         public void onDestroy() {
@@ -109,7 +110,7 @@ public class EldWallpaper extends WallpaperService {
 //                    (float)(Math.random()*800f),
 //                    (float)(Math.random()*800f), paint);
 
-            Bitmap bitmap = eldGenerator.getEldadBitmap();
+            Bitmap bitmap = eldGenerator.getEldadBitmap(frame++);
             Paint paint = new Paint();
             paint.setColor(0xffffffff);
 
