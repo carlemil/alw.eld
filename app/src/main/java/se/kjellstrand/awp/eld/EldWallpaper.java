@@ -18,7 +18,7 @@ public class EldWallpaper extends WallpaperService {
 
     @Override
     public Engine onCreateEngine() {
-        eldGenerator = new EldGenerator(getApplicationContext(), 200, 200);
+        eldGenerator = new EldGenerator(getApplicationContext(), 100, 200);
         return new EldWPEngine();
     }
 
@@ -96,36 +96,20 @@ public class EldWallpaper extends WallpaperService {
         }
 
         private void draw(Canvas c) {
-//            int size = 200;
-//            Log.d(TAG, "Iteration: ");
-//            Paint paint = new Paint();
-//            paint.setColor((int)(Math.random()*256+
-//                    Math.random()*256*256+
-//                    Math.random()*256*256*256+
-//                    Math.random()*256*256*256*256));
-//
-//            c.drawLine(
-//                    (float)(Math.random()*800f),
-//                    (float)(Math.random()*800f),
-//                    (float)(Math.random()*800f),
-//                    (float)(Math.random()*800f), paint);
-
             Bitmap bitmap = eldGenerator.getEldadBitmap(frame++);
             Paint paint = new Paint();
             paint.setColor(0xffffffff);
 
-            c.drawBitmap(bitmap, 0f, 0f, paint);
+            c.drawBitmap(bitmap, 200f, 200f, paint);
 
-            //c.drawLine(0,100,200,100,paint);
-
-            Log.d(TAG, "draw...");
+            //Log.d(TAG, "draw...");
         }
 
         protected void iteration() {
             // Reschedule the next redraw in 40ms
             mHandler.removeCallbacks(mIteration);
             if (mVisible) {
-                mHandler.postDelayed(mIteration, 1000 / 25);
+                mHandler.postDelayed(mIteration, 1000 / 60);
             }
         }
     }
