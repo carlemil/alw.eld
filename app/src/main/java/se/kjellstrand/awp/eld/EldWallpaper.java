@@ -18,7 +18,7 @@ public class EldWallpaper extends WallpaperService {
 
     @Override
     public Engine onCreateEngine() {
-        eldGenerator = new EldGenerator(getApplicationContext(), 100, 200);
+        eldGenerator = new EldGenerator(getApplicationContext(), 300, 300);
         return new EldWPEngine();
     }
 
@@ -102,7 +102,7 @@ public class EldWallpaper extends WallpaperService {
 
             c.drawBitmap(bitmap, 200f, 200f, paint);
 
-            //Log.d(TAG, "draw...");
+            Log.d(TAG, "draw...");
         }
 
         protected void iteration() {

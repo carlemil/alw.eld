@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.RenderScript;
+import android.renderscript.ScriptC;
 import android.renderscript.ScriptIntrinsicConvolve3x3;
 import android.renderscript.Type;
 import android.util.Log;
@@ -27,6 +28,8 @@ public class EldGenerator {
     private int width;
     private int height;
 
+    //private ScriptC_Colorise coloriseScript;
+
     public EldGenerator(Context context, int width, int height) {
         this.width = width;
         this.height = height;
@@ -45,6 +48,8 @@ public class EldGenerator {
                 0000f, 0.25f, 0000f};
         scriptIntrinsicConvolve3x3.setCoefficients(matrix);
 
+        //coloriseScript = new ScriptC_Colorise(rs, context.getResources(), R.raw.);
+
         bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
         Type tu8_2d = Type.createXY(rs, elementU8, width, height);
@@ -55,9 +60,16 @@ public class EldGenerator {
     }
 
     public Bitmap getEldadBitmap(int frame) {
+        long t = System.currentTimeMillis();
         seedEldAsLine(frame);
+        Log.d(TAG, "seedEldAsLine: " + (System.currentTimeMillis()-t));
+        t = System.currentTimeMillis();
         renderEld();
+        Log.d(TAG, "renderEld: " + (System.currentTimeMillis()-t));
+        t = System.currentTimeMillis();
         renderColors();
+        Log.d(TAG, "renderColors: " + (System.currentTimeMillis()-t));
+
         //swapAllocations();
         return bitmap;
     }
@@ -79,17 +91,18 @@ public class EldGenerator {
     }
 
     private void renderColors() {
-        float[] eldValues = new float[width*height];
-        allocationOut.copyTo(eldValues);
-
-        for(int y=0; y < height; y++) {
-            for(int x=0; x < width; x++){
-                float c = eldValues[x+(y*width)];
-
-                bitmap.setPixel(x, y, Color.argb(255,(int)(c/4),(int)(c/4),(int)(c/4)));
-            }
-        }
-
+//        float[] eldValues = new float[width*height];
+//        allocationOut.copyTo(eldValues);
+//
+//        for(int y=0; y < height; y++) {
+//            for(int x=0; x < width; x++){
+//                float c = eldValues[x+(y*width)];
+//
+//                bitmap.setPixel(x, y, Color.argb(255,(int)(c/4),(int)(c/4),(int)(c/4)));
+//            }
+//        }
+//        coloriseScript.setInput(allocationOut);
+//        coloriseScript.forEach(allocationBmp);
     }
 
 
