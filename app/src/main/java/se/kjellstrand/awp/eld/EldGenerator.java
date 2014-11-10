@@ -34,7 +34,7 @@ public class EldGenerator {
         RenderScript rs = RenderScript.create(context, RenderScript.ContextType.DEBUG);
         rs.setPriority(RenderScript.Priority.LOW);
 
-        elementU8 = Element.U8(rs);
+        elementU8 = Element.F32(rs);
         elementRGBA = Element.RGBA_8888(rs);
 
         scriptIntrinsicConvolve3x3 = ScriptIntrinsicConvolve3x3.create(rs, elementU8);
@@ -63,11 +63,11 @@ public class EldGenerator {
     }
 
     private void seedEldAsLine(int frame) {
-        byte[] eldValues = new byte[width*height];
+        float[] eldValues = new float[width*height];
         allocationOut.copyTo(eldValues);
         for(int y=height-1; y < height; y++) {
         for (int x = 0; x < width; x++) {
-            eldValues[(y*width) + x] = (byte) ((Math.sin((x+frame)/20)+1)*64);
+            eldValues[(y*width) + x] = (float)((Math.sin((x+frame)/20)+1)*512);
         }
         }
         allocationIn.copyFrom(eldValues);
@@ -79,14 +79,14 @@ public class EldGenerator {
     }
 
     private void renderColors() {
-        byte[] eldValues = new byte[width*height];
+        float[] eldValues = new float[width*height];
         allocationOut.copyTo(eldValues);
 
         for(int y=0; y < height; y++) {
             for(int x=0; x < width; x++){
-                byte c = eldValues[x+(y*width)];
+                float c = eldValues[x+(y*width)];
 
-                bitmap.setPixel(x, y, Color.argb(255,c*2,c*2,c*2));
+                bitmap.setPixel(x, y, Color.argb(255,(int)(c/4),(int)(c/4),(int)(c/4)));
             }
         }
 
