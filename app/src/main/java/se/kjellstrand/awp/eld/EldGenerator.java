@@ -2,11 +2,11 @@ package se.kjellstrand.awp.eld;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
+import android.renderscript.Matrix3f;
 import android.renderscript.RenderScript;
-import android.renderscript.ScriptC;
+import android.renderscript.ScriptIntrinsicColorMatrix;
 import android.renderscript.ScriptIntrinsicConvolve3x3;
 import android.renderscript.Type;
 import android.util.Log;
@@ -17,7 +17,7 @@ import android.util.Log;
 public class EldGenerator {
 
     private static final String TAG = EldGenerator.class.getCanonicalName();
-    Element elementU8;
+    Element elementF32;
     Element elementRGBA;
     private Bitmap bitmap;
     private Allocation allocationIn;
@@ -25,6 +25,7 @@ public class EldGenerator {
     private Allocation allocationBmp;
 
     private ScriptIntrinsicConvolve3x3 scriptIntrinsicConvolve3x3;
+
     private int width;
     private int height;
 
@@ -37,10 +38,10 @@ public class EldGenerator {
         RenderScript rs = RenderScript.create(context, RenderScript.ContextType.DEBUG);
         rs.setPriority(RenderScript.Priority.LOW);
 
-        elementU8 = Element.F32(rs);
+        elementF32 = Element.F32(rs);
         elementRGBA = Element.RGBA_8888(rs);
 
-        scriptIntrinsicConvolve3x3 = ScriptIntrinsicConvolve3x3.create(rs, elementU8);
+        scriptIntrinsicConvolve3x3 = ScriptIntrinsicConvolve3x3.create(rs, elementF32);
 
         float[] matrix = new float[]{
                 0000f, 0000f, 0000f,
@@ -52,7 +53,7 @@ public class EldGenerator {
 
         bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
-        Type tu8_2d = Type.createXY(rs, elementU8, width, height);
+        Type tu8_2d = Type.createXY(rs, elementF32, width, height);
         allocationIn = Allocation.createTyped(rs, tu8_2d);
         allocationOut = Allocation.createTyped(rs, tu8_2d);
         allocationBmp = Allocation.createFromBitmap(rs, bitmap);
@@ -77,10 +78,10 @@ public class EldGenerator {
     private void seedEldAsLine(int frame) {
         float[] eldValues = new float[width*height];
         allocationOut.copyTo(eldValues);
-        for(int y=height-1; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            eldValues[(y*width) + x] = (float)((Math.sin((x+frame)/20)+1)*512);
-        }
+        for(int y=height-4; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                eldValues[(y*width) + x] = (float)((Math.sin((x+frame)/20)+1)*512);
+            }
         }
         allocationIn.copyFrom(eldValues);
     }
@@ -101,8 +102,13 @@ public class EldGenerator {
 //                bitmap.setPixel(x, y, Color.argb(255,(int)(c/4),(int)(c/4),(int)(c/4)));
 //            }
 //        }
+
+        //TODO run the colorize rs script to set the colors.
 //        coloriseScript.setInput(allocationOut);
 //        coloriseScript.forEach(allocationBmp);
+        //allocationBmp.copyTo(bitmap);
+
+
     }
 
 

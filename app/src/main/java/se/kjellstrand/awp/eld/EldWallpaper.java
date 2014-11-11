@@ -2,7 +2,6 @@ package se.kjellstrand.awp.eld;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.Handler;
 import android.service.wallpaper.WallpaperService;
@@ -16,9 +15,12 @@ public class EldWallpaper extends WallpaperService {
 
     EldGenerator eldGenerator = null;
 
+    int height = 300;
+    int width = 300;
+
     @Override
     public Engine onCreateEngine() {
-        eldGenerator = new EldGenerator(getApplicationContext(), 300, 300);
+        eldGenerator = new EldGenerator(getApplicationContext(), width, height);
         return new EldWPEngine();
     }
 
@@ -100,8 +102,14 @@ public class EldWallpaper extends WallpaperService {
             Paint paint = new Paint();
             paint.setColor(0xffffffff);
 
-            c.drawBitmap(bitmap, 200f, 200f, paint);
+            int xd = 200;
+            int yd = 200;
+            c.drawBitmap(bitmap, xd, yd, paint);
 
+            c.drawLine(0 + xd, 0 + yd, width + xd, 0 + yd, paint);
+            c.drawLine(width + xd, 0 + yd, width + xd, height + yd, paint);
+            c.drawLine(width + xd, height + yd, 0 + xd, height + yd, paint);
+            c.drawLine(0 + xd, height + yd, 0 + xd, 0 + yd, paint);
             Log.d(TAG, "draw...");
         }
 
