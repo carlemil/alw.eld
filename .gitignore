@@ -26,3 +26,8 @@ proguard/
 *.log
 .idea
 app/app.iml
+app/src/main/.classpath
+app/src/main/.projecth
+app/src/main/project.properties
+app/src/main/.project
+.gitignore

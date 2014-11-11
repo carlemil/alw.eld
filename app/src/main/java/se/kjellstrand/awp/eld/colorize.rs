@@ -6,8 +6,8 @@
 int range;
 uchar *color;
 
-void root(const float *in, float *out, uint32_t x, uint32_t y) {
-    *out = *in;
+void root(const int *in, uchar4 *out, uint32_t x, uint32_t y) {
+    //   - *out->b = (uchar)*in;
     
     //out->b = (float)255;//color[c*3+0];
     //    out->g = color[c*3+1];

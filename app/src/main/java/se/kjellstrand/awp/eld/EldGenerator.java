@@ -4,10 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
-import android.renderscript.Matrix3f;
 import android.renderscript.RenderScript;
-import android.renderscript.ScriptIntrinsicColorMatrix;
-import android.renderscript.ScriptIntrinsicConvolve3x3;
 import android.renderscript.Type;
 import android.util.Log;
 
@@ -16,106 +13,91 @@ import android.util.Log;
  */
 public class EldGenerator {
 
-    private static final String TAG = EldGenerator.class.getCanonicalName();
-    Element elementF32;
-    Element elementRGBA;
-    private Bitmap bitmap;
-    private Allocation allocationIn;
-    private Allocation allocationOut;
-    private Allocation allocationBmp;
+	private static final String TAG = EldGenerator.class.getCanonicalName();
+	private Bitmap bitmap;
+	private Allocation allocationIn;
+	private Allocation allocationOut;
+	private Allocation allocationBmp;
 
-    private ScriptIntrinsicConvolve3x3 scriptIntrinsicConvolve3x3;
+	private int width;
+	private int height;
 
-    private int width;
-    private int height;
+	private ScriptC_colorize coloriseScript;
 
-    //private ScriptC_Colorise coloriseScript;
+	private ScriptC_elda elda;
 
-    public EldGenerator(Context context, int width, int height) {
-        this.width = width;
-        this.height = height;
+	public EldGenerator(Context context, int width, int height) {
+		this.width = width;
+		this.height = height;
 
-        RenderScript rs = RenderScript.create(context, RenderScript.ContextType.DEBUG);
-        rs.setPriority(RenderScript.Priority.LOW);
+		RenderScript rs = RenderScript.create(context,
+				RenderScript.ContextType.DEBUG);
+		rs.setPriority(RenderScript.Priority.LOW);
 
-        elementF32 = Element.F32(rs);
-        elementRGBA = Element.RGBA_8888(rs);
+		coloriseScript = new ScriptC_colorize(rs);
+		elda = new ScriptC_elda(rs);
 
-        scriptIntrinsicConvolve3x3 = ScriptIntrinsicConvolve3x3.create(rs, elementF32);
+		bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
-        float[] matrix = new float[]{
-                0000f, 0000f, 0000f,
-                0.25f, 0.25f, 0.25f,
-                0000f, 0.25f, 0000f};
-        scriptIntrinsicConvolve3x3.setCoefficients(matrix);
+		allocationIn = Allocation.createSized(rs, Element.I32(rs), width
+				* height);
+		allocationOut = Allocation.createSized(rs, Element.I32(rs), width
+				* height);
+		allocationBmp = Allocation.createFromBitmap(rs, bitmap, Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
 
-        //coloriseScript = new ScriptC_Colorise(rs, context.getResources(), R.raw.);
+		
+		  Type t0, t1;        // Verify dimensions
+	        t0 = allocationOut.getType();
+	        t1 = allocationBmp.getType();
+    	Log.d("TAG", "t0: "+t0.getCount()+" "+t0.getName()+" "+t0.getX()+" "+t0.getY()+" "+t0.getElement() );
+    	Log.d("TAG", "t1: "+t1.getCount()+" "+t1.getName()+" "+t1.getX()+" "+t1.getY()+" "+t1.getElement() );
 
-        bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+		
+	}
 
-        Type tu8_2d = Type.createXY(rs, elementF32, width, height);
-        allocationIn = Allocation.createTyped(rs, tu8_2d);
-        allocationOut = Allocation.createTyped(rs, tu8_2d);
-        allocationBmp = Allocation.createFromBitmap(rs, bitmap);
+	public Bitmap getEldadBitmap(int frame) {
+		long t = System.currentTimeMillis();
+		seedEldAsLine(frame);
+		Log.d(TAG, "seedEldAsLine: " + (System.currentTimeMillis() - t));
+		t = System.currentTimeMillis();
+		renderEld();
+		Log.d(TAG, "renderEld: " + (System.currentTimeMillis() - t));
+		t = System.currentTimeMillis();
+		renderColors();
+		Log.d(TAG, "renderColors: " + (System.currentTimeMillis() - t));
 
-    }
+		// swapAllocations();
+		return bitmap;
+	}
 
-    public Bitmap getEldadBitmap(int frame) {
-        long t = System.currentTimeMillis();
-        seedEldAsLine(frame);
-        Log.d(TAG, "seedEldAsLine: " + (System.currentTimeMillis()-t));
-        t = System.currentTimeMillis();
-        renderEld();
-        Log.d(TAG, "renderEld: " + (System.currentTimeMillis()-t));
-        t = System.currentTimeMillis();
-        renderColors();
-        Log.d(TAG, "renderColors: " + (System.currentTimeMillis()-t));
+	private void seedEldAsLine(int frame) {
+		int[] eldValues = new int[width * height];
+		allocationOut.copyTo(eldValues);
+		for (int y = height - 4; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				eldValues[(y * width) + x] = (int) ((Math.sin((x + frame) / 20) + 1) * 512);
+			}
+		}
+		allocationIn.copyFrom(eldValues);
+	}
 
-        //swapAllocations();
-        return bitmap;
-    }
+	private void renderEld() {
+		elda.forEach_root(allocationIn, allocationOut);
+	}
 
-    private void seedEldAsLine(int frame) {
-        float[] eldValues = new float[width*height];
-        allocationOut.copyTo(eldValues);
-        for(int y=height-4; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                eldValues[(y*width) + x] = (float)((Math.sin((x+frame)/20)+1)*512);
-            }
-        }
-        allocationIn.copyFrom(eldValues);
-    }
+	private void renderColors() {
+		coloriseScript.forEach_root(allocationOut, allocationBmp);
+		
+		// colorAllocation.copy1DRangeFrom(0, theme.precission * 3, d);
+		11-11 22:09:52.373: D/TAG(14607): t0: 90000 null 90000 0 android.renderscript.Element@c57a900
+		11-11 22:09:52.373: D/TAG(14607): t1: 90000 null 300 300 android.renderscript.Element@c57aa80
 
-    private void renderEld() {
-        scriptIntrinsicConvolve3x3.setInput(allocationIn);
-        scriptIntrinsicConvolve3x3.forEach(allocationOut);
-    }
+	}
 
-    private void renderColors() {
-//        float[] eldValues = new float[width*height];
-//        allocationOut.copyTo(eldValues);
-//
-//        for(int y=0; y < height; y++) {
-//            for(int x=0; x < width; x++){
-//                float c = eldValues[x+(y*width)];
-//
-//                bitmap.setPixel(x, y, Color.argb(255,(int)(c/4),(int)(c/4),(int)(c/4)));
-//            }
-//        }
-
-        //TODO run the colorize rs script to set the colors.
-//        coloriseScript.setInput(allocationOut);
-//        coloriseScript.forEach(allocationBmp);
-        //allocationBmp.copyTo(bitmap);
-
-
-    }
-
-
-    private void swapAllocations() {
-        // Swap buffers
-        Allocation tmp = allocationIn;
-        allocationIn = allocationOut;
-        allocationOut = tmp;
-    }
+	private void swapAllocations() {
+		// Swap buffers
+		Allocation tmp = allocationIn;
+		allocationIn = allocationOut;
+		allocationOut = tmp;
+	}
 }
