@@ -81,7 +81,7 @@ public class EldGenerator {
 		allocationEldad.copyTo(eldValues);
 		for (int y = height - 14; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				eldValues[(y * width) + x] = (255<<24)+(127<<16)+(255<<8)+255; 
+				eldValues[(y * width) + x] = 255; //(255<<24)+(127<<16)+(255<<8)+255; 
 				//(int) ((Math.sin((x + frame) / 20) + 1) * 512);
 			}
 		}
@@ -89,6 +89,7 @@ public class EldGenerator {
 	}
 
 	private void renderEld() {
+		eldaScript.set_inAllocation(allocationSeed);
 		eldaScript.forEach_root(allocationSeed, allocationEldad);
 	}
 
@@ -98,13 +99,7 @@ public class EldGenerator {
 	
 	private void renderToBitmap() {
 		int[] bitmapValues = new int[width * height];
-		//allocationColorized
-		allocationSeed.copyTo(bitmapValues);
-		for (int y = height - 14; y < height; y++) {
-			for (int x = 0; x < 10; x++) {
-				Log.d("TAG", ": eldValues[(y * width) + x] "+bitmapValues[(y * width) + x]);
-			}
-		}
+		allocationColorized.copyTo(bitmapValues);
 		bitmap.setPixels(bitmapValues, 0, width, 0, 0, width, height);
 	}
 

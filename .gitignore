@@ -31,3 +31,4 @@ app/src/main/.projecth
 app/src/main/project.properties
 app/src/main/.project
 .gitignore
+app/src/main/.settings/
