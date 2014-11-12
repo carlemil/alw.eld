@@ -25,28 +25,20 @@ public class EldGenerator {
 	private ScriptC_colorize coloriseScript;
 
 	private ScriptC_elda eldaScript;
+	
+	private RenderScript rs;
 
 	public EldGenerator(Context context, int width, int height) {
 		this.width = width;
 		this.height = height;
 
-		RenderScript rs = RenderScript.create(context,
+		rs = RenderScript.create(context,
 				RenderScript.ContextType.DEBUG);
 		rs.setPriority(RenderScript.Priority.LOW);
+		
+		setupPalette(context);
 
 		coloriseScript = new ScriptC_colorize(rs);
-
-		// ------
-		int[] colors = new int[] { 0xff000000, 0xffff0000, 0xffffff00,
-				0xffffffff };
-		int[] d = Palette.getPalette(context, colors, 200);
-
-		Element type = Element.I32(rs);
-		Allocation colorAllocation = Allocation.createSized(rs, type, 200);
-		coloriseScript.bind_color(colorAllocation);
-
-		colorAllocation.copy1DRangeFrom(0, 200, d);
-		// ------
 
 		eldaScript = new ScriptC_elda(rs);
 
@@ -61,37 +53,40 @@ public class EldGenerator {
 				* height);
 		allocationColorized = Allocation.createSized(rs, Element.I32(rs), width
 				* height);
+	}
 
-		// Allocation.createFromBitmap(rs, bitmap,
-		// Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
+	private void setupPalette(Context context) {
+		int[] colors = new int[] { 0xff000000, 0xffff0000, 0xffffff00,
+				0xffffffff };
+		int[] d = Palette.getPalette(context, colors, 200);
 
-		Type t0, t1; // Verify dimensions
-		t0 = allocationEldad.getType();
-		t1 = allocationColorized.getType();
-		Log.d("TAG",
-				"t0: " + t0.getCount() + " " + t0.getName() + " " + t0.getX()
-						+ " " + t0.getY() + " " + t0.getElement());
-		Log.d("TAG",
-				"t1: " + t1.getCount() + " " + t1.getName() + " " + t1.getX()
-						+ " " + t1.getY() + " " + t1.getElement());
+		Element type = Element.I32(rs);
+		Allocation colorAllocation = Allocation.createSized(rs, type, 200);
+		coloriseScript.bind_color(colorAllocation);
 
+		colorAllocation.copy1DRangeFrom(0, 200, d);
 	}
 
 	public Bitmap getEldadBitmap(int frame) {
 		long t = System.currentTimeMillis();
 		seedEldAsLine(frame);
+		rs.finish();
 		Log.d(TAG, "seedEldAsLine: " + (System.currentTimeMillis() - t));
-
+		
 		t = System.currentTimeMillis();
 		renderEld();
+		rs.finish();
 		Log.d(TAG, "renderEld: " + (System.currentTimeMillis() - t));
-
+		
 		t = System.currentTimeMillis();
 		renderColors();
+		rs.finish();
 		Log.d(TAG, "renderColors: " + (System.currentTimeMillis() - t));
 
+		
 		t = System.currentTimeMillis();
 		renderToBitmap();
+		rs.finish();
 		Log.d(TAG, "renderToBitmap: " + (System.currentTimeMillis() - t));
 
 		// swapAllocations();
@@ -114,6 +109,7 @@ public class EldGenerator {
 	private void renderEld() {
 		eldaScript.set_inAllocation(allocationSeed);
 		eldaScript.forEach_root(allocationSeed, allocationEldad);
+		
 	}
 
 	private void renderColors() {
