@@ -2,6 +2,7 @@ package se.kjellstrand.awp.eld;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.Handler;
 import android.service.wallpaper.WallpaperService;
@@ -15,8 +16,8 @@ public class EldWallpaper extends WallpaperService {
 
     EldGenerator eldGenerator = null;
 
-    int height = 300;
-    int width = 300;
+    int height = 400;
+    int width = 400;
 
     @Override
     public Engine onCreateEngine() {
@@ -38,7 +39,7 @@ public class EldWallpaper extends WallpaperService {
         };
 
         private boolean mVisible;
-        private int frame = 0;
+        private int frame;
 
         @Override
         public void onDestroy() {
@@ -104,19 +105,18 @@ public class EldWallpaper extends WallpaperService {
 
             int xd = 300;
             int yd = 300;
-            c.drawBitmap(bitmap, xd, yd, paint);
-
-            c.drawLine(0 + xd, 0 + yd, width + xd, 0 + yd, paint);
-            c.drawLine(width + xd, 0 + yd, width + xd, height + yd, paint);
-            c.drawLine(width + xd, height + yd, 0 + xd, height + yd, paint);
-            c.drawLine(0 + xd, height + yd, 0 + xd, 0 + yd, paint);
-            Log.d(TAG, "draw...");
+            Matrix matrix = new Matrix();
+            matrix.reset();
+            // TODO find min size and save for use here.
+            matrix.setScale(1000/width, 1000/height);
+			c.drawBitmap(bitmap, matrix, paint);
         }
 
         protected void iteration() {
             // Reschedule the next redraw in 40ms
             mHandler.removeCallbacks(mIteration);
             if (mVisible) {
+            	// TODO make constant?
                 mHandler.postDelayed(mIteration, 1000 / 60);
             }
         }

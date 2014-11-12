@@ -29,13 +29,12 @@ public class EldGenerator {
 	private RenderScript rs;
 
 	private SirpinskyGenerator spg;
-	
+
 	private int paletteSize = 200;
 
 	public EldGenerator(Context context, int width, int height) {
 		this.width = width;
 		this.height = height;
-
 
 		rs = RenderScript.create(context, RenderScript.ContextType.DEBUG);
 		rs.setPriority(RenderScript.Priority.LOW);
@@ -84,11 +83,14 @@ public class EldGenerator {
 		int[] eldValues = new int[width * height];
 		allocationEldad.copyTo(eldValues);
 		int x1 = (int) ((Math.sin(frame / 45f) + 1) / 2f * (width - 4) + 2);
-		int y1 = (int) ((Math.cos(frame / 53f) + 1) / 2f * (width - 4) + 2);
+		int y1 = (int) ((Math.cos(frame / 53f) + 1) / 2f * ((height / 2) - 4)
+				+ 2 + height / 2);
 		int x2 = (int) ((Math.sin(frame / 66f) + 1) / 2f * (width - 4) + 2);
-		int y2 = (int) ((Math.cos(frame / 76f) + 1) / 2f * (width - 4) + 2);
+		int y2 = (int) ((Math.cos(frame / 76f) + 1) / 2f * ((height / 2) - 4)
+				+ 2 + height / 2);
 		int x3 = (int) ((Math.sin(frame / 73f) + 1) / 2f * (width - 4) + 2);
-		int y3 = (int) ((Math.cos(frame / 47f) + 1) / 2f * (width - 4) + 2);
+		int y3 = (int) ((Math.cos(frame / 47f) + 1) / 2f * ((height / 2) - 4)
+				+ 2 + height / 2);
 
 		int[] spgValues = spg.getSirpinsky(x1, y1, x2, y2, x3, y3);
 		for (int i = 0; i < spg.getSize(); i++) {

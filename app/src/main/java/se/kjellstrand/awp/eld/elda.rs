@@ -13,6 +13,10 @@ void root(const int *in, int *out, uint32_t x, uint32_t y) {
 		const int v10 = *(const int*)rsGetElementAt(inAllocation, pos - 1);
 		const int v12 = *(const int*)rsGetElementAt(inAllocation, pos + 1);
 		const int v21 = *(const int*)rsGetElementAt(inAllocation, pos + width);
-		*out = (*in + v10 + v12 + v21)>>2;
+		int v = (*in + v10 + v12 + v21 - 1)>>2;
+		if(v<1){
+			v=0;
+		}	
+		*out = v;
 	}
 }
