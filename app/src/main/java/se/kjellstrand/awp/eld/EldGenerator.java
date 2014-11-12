@@ -27,6 +27,8 @@ public class EldGenerator {
 	private ScriptC_elda eldaScript;
 	
 	private RenderScript rs;
+	
+	private SirpinskyGenerator spg;
 
 	public EldGenerator(Context context, int width, int height) {
 		this.width = width;
@@ -36,17 +38,19 @@ public class EldGenerator {
 				RenderScript.ContextType.DEBUG);
 		rs.setPriority(RenderScript.Priority.LOW);
 		
-		int[] colors = new int[] { 0xff000000, 0xffff0000, 0xffffff00,
-				0xffffffff };
-		setupPalette(context, colors);
+		setupAllocations(width, height);
 
 		setupColorizeScript();
 
 		setupEldaScript(width, height);
 
 		bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-
-		setupAllocations(width, height);
+		
+		int[] colors = new int[] { 0xff000000, 0xffff0000, 0xffffff00,
+				0xffffffff };
+		setupPalette(context, colors);
+		
+		spg = new SirpinskyGenerator(250);
 	}
 
 
@@ -79,12 +83,11 @@ public class EldGenerator {
 	private void seedEldAsLine(int frame) {
 		int[] eldValues = new int[width * height];
 		allocationEldad.copyTo(eldValues);
-		for (int y = height - 1; y < height; y++) {
-			for (int x = 0; x < width; x++) {
-
-				eldValues[(y * width) + x] = (int) ((Math
-						.sin((x + frame) / 20f) + 1f) / 2f * 200);
-			}
+		int[] spgValues = spg.getSirpinsky(0, 0, 200, 0, 0, 100);
+		for (int i = 0; i < spg.getSize(); i++) {
+			int x= spgValues[i*2];
+			int y= spgValues[i*2+1];
+				eldValues[(y * width) + x] = 200;
 		}
 		allocationSeed.copyFrom(eldValues);
 	}
