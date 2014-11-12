@@ -36,36 +36,19 @@ public class EldGenerator {
 				RenderScript.ContextType.DEBUG);
 		rs.setPriority(RenderScript.Priority.LOW);
 		
-		setupPalette(context);
+		int[] colors = new int[] { 0xff000000, 0xffff0000, 0xffffff00,
+				0xffffffff };
+		setupPalette(context, colors);
 
-		coloriseScript = new ScriptC_colorize(rs);
+		setupColorizeScript();
 
-		eldaScript = new ScriptC_elda(rs);
-
-		eldaScript.set_width(width);
-		eldaScript.set_height(height);
+		setupEldaScript(width, height);
 
 		bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
-		allocationSeed = Allocation.createSized(rs, Element.I32(rs), width
-				* height);
-		allocationEldad = Allocation.createSized(rs, Element.I32(rs), width
-				* height);
-		allocationColorized = Allocation.createSized(rs, Element.I32(rs), width
-				* height);
+		setupAllocations(width, height);
 	}
 
-	private void setupPalette(Context context) {
-		int[] colors = new int[] { 0xff000000, 0xffff0000, 0xffffff00,
-				0xffffffff };
-		int[] d = Palette.getPalette(context, colors, 200);
-
-		Element type = Element.I32(rs);
-		Allocation colorAllocation = Allocation.createSized(rs, type, 200);
-		coloriseScript.bind_color(colorAllocation);
-
-		colorAllocation.copy1DRangeFrom(0, 200, d);
-	}
 
 	public Bitmap getEldadBitmap(int frame) {
 		long t = System.currentTimeMillis();
@@ -122,10 +105,32 @@ public class EldGenerator {
 		bitmap.setPixels(bitmapValues, 0, width, 0, 0, width, height);
 	}
 
-	private void swapAllocations() {
-		// Swap buffers
-		Allocation tmp = allocationSeed;
-		allocationSeed = allocationEldad;
-		allocationEldad = tmp;
+	private void setupAllocations(int width, int height) {
+		allocationSeed = Allocation.createSized(rs, Element.I32(rs), width
+				* height);
+		allocationEldad = Allocation.createSized(rs, Element.I32(rs), width
+				* height);
+		allocationColorized = Allocation.createSized(rs, Element.I32(rs), width
+				* height);
+	}
+
+	private void setupColorizeScript() {
+		coloriseScript = new ScriptC_colorize(rs);
+	}
+
+	private void setupEldaScript(int width, int height) {
+		eldaScript = new ScriptC_elda(rs);
+		eldaScript.set_width(width);
+		eldaScript.set_height(height);
+	}
+
+	private void setupPalette(Context context, int[] colors) {
+		int[] d = Palette.getPalette(context, colors, 200);
+
+		Element type = Element.I32(rs);
+		Allocation colorAllocation = Allocation.createSized(rs, type, 200);
+		coloriseScript.bind_color(colorAllocation);
+
+		colorAllocation.copy1DRangeFrom(0, 200, d);
 	}
 }
