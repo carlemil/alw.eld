@@ -98,7 +98,7 @@ public class EldWallpaper extends WallpaperService {
         }
 
         private void draw(Canvas c) {
-            Bitmap bitmap = eldGenerator.getEldadBitmap(frame++);
+            Bitmap bitmap = eldGenerator.getBitmapForFrame(frame++);
             Paint paint = new Paint();
             paint.setColor(0xffffffff);
 
