@@ -6,7 +6,6 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.Handler;
 import android.service.wallpaper.WallpaperService;
-import android.util.Log;
 import android.view.SurfaceHolder;
 
 /**
@@ -26,8 +25,6 @@ public class EldWallpaper extends WallpaperService {
     }
 
     class EldWPEngine extends  Engine {
-
-        private final String TAG = EldWPEngine.class.getCanonicalName();
 
         private Handler mHandler = new Handler();
 
@@ -103,8 +100,6 @@ public class EldWallpaper extends WallpaperService {
             Paint paint = new Paint();
             paint.setColor(0xffffffff);
 
-            int xd = 300;
-            int yd = 300;
             Matrix matrix = new Matrix();
             matrix.reset();
             // TODO find min size and save for use here.

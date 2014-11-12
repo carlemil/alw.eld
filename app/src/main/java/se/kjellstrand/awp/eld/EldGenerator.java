@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.RenderScript;
-import android.renderscript.Type;
 import android.util.Log;
 
 /**
@@ -75,13 +74,14 @@ public class EldGenerator {
 		rs.finish();
 		Log.d(TAG, "renderToBitmap: " + (System.currentTimeMillis() - t));
 
-		// swapAllocations();
 		return bitmap;
 	}
 
 	private void renderSirpinskySeed(int frame) {
 		int[] eldValues = new int[width * height];
 		allocationEldad.copyTo(eldValues);
+		
+		// TODO break out to method
 		int x1 = (int) ((Math.sin(frame / 45f) + 1) / 2f * (width - 4) + 2);
 		int y1 = (int) ((Math.cos(frame / 53f) + 1) / 2f * ((height / 2) - 4)
 				+ 2 + height / 2);
