@@ -102,8 +102,8 @@ public class EldWallpaper extends WallpaperService {
             Paint paint = new Paint();
             paint.setColor(0xffffffff);
 
-            int xd = 200;
-            int yd = 200;
+            int xd = 300;
+            int yd = 300;
             c.drawBitmap(bitmap, xd, yd, paint);
 
             c.drawLine(0 + xd, 0 + yd, width + xd, 0 + yd, paint);

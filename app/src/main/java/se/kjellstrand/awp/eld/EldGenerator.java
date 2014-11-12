@@ -35,38 +35,57 @@ public class EldGenerator {
 		rs.setPriority(RenderScript.Priority.LOW);
 
 		coloriseScript = new ScriptC_colorize(rs);
+
+		// ------
+		int[] colors = new int[] { 0xff000000, 0xffff0000, 0xffffff00,
+				0xffffffff };
+		int[] d = Palette.getPalette(context, colors, 200);
+
+		Element type = Element.I32(rs);
+		Allocation colorAllocation = Allocation.createSized(rs, type, 200);
+		coloriseScript.bind_color(colorAllocation);
+
+		colorAllocation.copy1DRangeFrom(0, 200, d);
+		// ------
+
 		eldaScript = new ScriptC_elda(rs);
-		
+
 		eldaScript.set_width(width);
 		eldaScript.set_height(height);
 
 		bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
-		allocationSeed = Allocation.createSized(rs, Element.I32(rs), width * height);
-		allocationEldad = Allocation.createSized(rs, Element.I32(rs), width * height);
-		allocationColorized = Allocation.createSized(rs, Element.I32(rs), width * height); 
-		
-		//Allocation.createFromBitmap(rs, bitmap, Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
+		allocationSeed = Allocation.createSized(rs, Element.I32(rs), width
+				* height);
+		allocationEldad = Allocation.createSized(rs, Element.I32(rs), width
+				* height);
+		allocationColorized = Allocation.createSized(rs, Element.I32(rs), width
+				* height);
 
-		
-		  Type t0, t1;        // Verify dimensions
-	        t0 = allocationEldad.getType();
-	        t1 = allocationColorized.getType();
-    	Log.d("TAG", "t0: "+t0.getCount()+" "+t0.getName()+" "+t0.getX()+" "+t0.getY()+" "+t0.getElement() );
-    	Log.d("TAG", "t1: "+t1.getCount()+" "+t1.getName()+" "+t1.getX()+" "+t1.getY()+" "+t1.getElement() );
+		// Allocation.createFromBitmap(rs, bitmap,
+		// Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
 
-		
+		Type t0, t1; // Verify dimensions
+		t0 = allocationEldad.getType();
+		t1 = allocationColorized.getType();
+		Log.d("TAG",
+				"t0: " + t0.getCount() + " " + t0.getName() + " " + t0.getX()
+						+ " " + t0.getY() + " " + t0.getElement());
+		Log.d("TAG",
+				"t1: " + t1.getCount() + " " + t1.getName() + " " + t1.getX()
+						+ " " + t1.getY() + " " + t1.getElement());
+
 	}
 
 	public Bitmap getEldadBitmap(int frame) {
 		long t = System.currentTimeMillis();
 		seedEldAsLine(frame);
 		Log.d(TAG, "seedEldAsLine: " + (System.currentTimeMillis() - t));
-		
+
 		t = System.currentTimeMillis();
 		renderEld();
 		Log.d(TAG, "renderEld: " + (System.currentTimeMillis() - t));
-		
+
 		t = System.currentTimeMillis();
 		renderColors();
 		Log.d(TAG, "renderColors: " + (System.currentTimeMillis() - t));
@@ -74,7 +93,7 @@ public class EldGenerator {
 		t = System.currentTimeMillis();
 		renderToBitmap();
 		Log.d(TAG, "renderToBitmap: " + (System.currentTimeMillis() - t));
-		
+
 		// swapAllocations();
 		return bitmap;
 	}
@@ -82,10 +101,11 @@ public class EldGenerator {
 	private void seedEldAsLine(int frame) {
 		int[] eldValues = new int[width * height];
 		allocationEldad.copyTo(eldValues);
-		for (int y = height - 14; y < height; y++) {
+		for (int y = height - 1; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				eldValues[(y * width) + x] = 255; //(255<<24)+(127<<16)+(255<<8)+255; 
-				//(int) ((Math.sin((x + frame) / 20) + 1) * 512);
+
+				eldValues[(y * width) + x] = (int) ((Math
+						.sin((x + frame) / 20f) + 1f) / 2f * 200);
 			}
 		}
 		allocationSeed.copyFrom(eldValues);
@@ -99,7 +119,7 @@ public class EldGenerator {
 	private void renderColors() {
 		coloriseScript.forEach_root(allocationEldad, allocationColorized);
 	}
-	
+
 	private void renderToBitmap() {
 		int[] bitmapValues = new int[width * height];
 		allocationColorized.copyTo(bitmapValues);
