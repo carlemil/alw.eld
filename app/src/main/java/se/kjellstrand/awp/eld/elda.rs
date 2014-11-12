@@ -6,7 +6,9 @@
 rs_allocation inAllocation;
 
 void root(const int *in, int *out, uint32_t x, uint32_t y) {
-  //rsGetElementAt(in, i);
+  const int v10 = *(const int*)rsGetElementAt(inAllocation, x);
+  const int v12 = *(const int*)rsGetElementAt(inAllocation, x);
+  const int v21 = *(const int*)rsGetElementAt(inAllocation, x);
   //return *v;
    *out = *in;
 }
