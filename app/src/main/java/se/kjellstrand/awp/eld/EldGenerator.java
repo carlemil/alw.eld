@@ -36,6 +36,9 @@ public class EldGenerator {
 
 		coloriseScript = new ScriptC_colorize(rs);
 		eldaScript = new ScriptC_elda(rs);
+		
+		eldaScript.set_width(width);
+		eldaScript.set_height(height);
 
 		bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
