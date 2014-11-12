@@ -15,16 +15,16 @@ public class EldGenerator {
 
 	private static final String TAG = EldGenerator.class.getCanonicalName();
 	private Bitmap bitmap;
-	private Allocation allocationIn;
-	private Allocation allocationOut;
-	private Allocation allocationBmp;
+	private Allocation allocationSeed;
+	private Allocation allocationEldad;
+	private Allocation allocationColorized;
 
 	private int width;
 	private int height;
 
 	private ScriptC_colorize coloriseScript;
 
-	private ScriptC_elda elda;
+	private ScriptC_elda eldaScript;
 
 	public EldGenerator(Context context, int width, int height) {
 		this.width = width;
@@ -35,20 +35,20 @@ public class EldGenerator {
 		rs.setPriority(RenderScript.Priority.LOW);
 
 		coloriseScript = new ScriptC_colorize(rs);
-		elda = new ScriptC_elda(rs);
+		eldaScript = new ScriptC_elda(rs);
 
 		bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
-		allocationIn = Allocation.createSized(rs, Element.I32(rs), width
-				* height);
-		allocationOut = Allocation.createSized(rs, Element.I32(rs), width
-				* height);
-		allocationBmp = Allocation.createFromBitmap(rs, bitmap, Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
+		allocationSeed = Allocation.createSized(rs, Element.I32(rs), width * height);
+		allocationEldad = Allocation.createSized(rs, Element.I32(rs), width * height);
+		allocationColorized = Allocation.createSized(rs, Element.I32(rs), width * height); 
+		
+		//Allocation.createFromBitmap(rs, bitmap, Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
 
 		
 		  Type t0, t1;        // Verify dimensions
-	        t0 = allocationOut.getType();
-	        t1 = allocationBmp.getType();
+	        t0 = allocationEldad.getType();
+	        t1 = allocationColorized.getType();
     	Log.d("TAG", "t0: "+t0.getCount()+" "+t0.getName()+" "+t0.getX()+" "+t0.getY()+" "+t0.getElement() );
     	Log.d("TAG", "t1: "+t1.getCount()+" "+t1.getName()+" "+t1.getX()+" "+t1.getY()+" "+t1.getElement() );
 
@@ -59,45 +59,59 @@ public class EldGenerator {
 		long t = System.currentTimeMillis();
 		seedEldAsLine(frame);
 		Log.d(TAG, "seedEldAsLine: " + (System.currentTimeMillis() - t));
+		
 		t = System.currentTimeMillis();
 		renderEld();
 		Log.d(TAG, "renderEld: " + (System.currentTimeMillis() - t));
+		
 		t = System.currentTimeMillis();
 		renderColors();
 		Log.d(TAG, "renderColors: " + (System.currentTimeMillis() - t));
 
+		t = System.currentTimeMillis();
+		renderToBitmap();
+		Log.d(TAG, "renderToBitmap: " + (System.currentTimeMillis() - t));
+		
 		// swapAllocations();
 		return bitmap;
 	}
 
 	private void seedEldAsLine(int frame) {
 		int[] eldValues = new int[width * height];
-		allocationOut.copyTo(eldValues);
-		for (int y = height - 4; y < height; y++) {
+		allocationEldad.copyTo(eldValues);
+		for (int y = height - 14; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				eldValues[(y * width) + x] = (int) ((Math.sin((x + frame) / 20) + 1) * 512);
+				eldValues[(y * width) + x] = (255<<24)+(127<<16)+(255<<8)+255; 
+				//(int) ((Math.sin((x + frame) / 20) + 1) * 512);
 			}
 		}
-		allocationIn.copyFrom(eldValues);
+		allocationSeed.copyFrom(eldValues);
 	}
 
 	private void renderEld() {
-		elda.forEach_root(allocationIn, allocationOut);
+		eldaScript.forEach_root(allocationSeed, allocationEldad);
 	}
 
 	private void renderColors() {
-		coloriseScript.forEach_root(allocationOut, allocationBmp);
-		
-		// colorAllocation.copy1DRangeFrom(0, theme.precission * 3, d);
-		11-11 22:09:52.373: D/TAG(14607): t0: 90000 null 90000 0 android.renderscript.Element@c57a900
-		11-11 22:09:52.373: D/TAG(14607): t1: 90000 null 300 300 android.renderscript.Element@c57aa80
-
+		coloriseScript.forEach_root(allocationEldad, allocationColorized);
+	}
+	
+	private void renderToBitmap() {
+		int[] bitmapValues = new int[width * height];
+		//allocationColorized
+		allocationSeed.copyTo(bitmapValues);
+		for (int y = height - 14; y < height; y++) {
+			for (int x = 0; x < 10; x++) {
+				Log.d("TAG", ": eldValues[(y * width) + x] "+bitmapValues[(y * width) + x]);
+			}
+		}
+		bitmap.setPixels(bitmapValues, 0, width, 0, 0, width, height);
 	}
 
 	private void swapAllocations() {
 		// Swap buffers
-		Allocation tmp = allocationIn;
-		allocationIn = allocationOut;
-		allocationOut = tmp;
+		Allocation tmp = allocationSeed;
+		allocationSeed = allocationEldad;
+		allocationEldad = tmp;
 	}
 }
