@@ -28,6 +28,10 @@ public class EldGenerator {
 	private RenderScript rs;
 
 	private SirpinskyGenerator spg;
+	
+	private int[] sirpinskyPoints;
+	
+	int[] bitmapValues;
 
 	private int paletteSize = 200;
 
@@ -45,17 +49,19 @@ public class EldGenerator {
 		setupEldaScript(width, height);
 
 		bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-
+		bitmapValues = new int[width * height];
+		
 		int[] colors = new int[] { 0xff000000, 0xffff0000, 0xffffff00,
 				0xffffffff };
 		setupPalette(context, colors);
 
-		spg = new SirpinskyGenerator(250);
+		spg = new SirpinskyGenerator(250, width, height);
+		sirpinskyPoints = new int[width * height];
 	}
 
 	public Bitmap getBitmapForFrame(int frame) {
 		long t = System.currentTimeMillis();
-		renderSirpinskySeed(frame);
+		renderSirpinsky(frame);
 		rs.finish();
 		Log.d(TAG, "seedEldAsLine: " + (System.currentTimeMillis() - t));
 
@@ -77,39 +83,10 @@ public class EldGenerator {
 		return bitmap;
 	}
 
-	private void renderSirpinskySeed(int frame) {
-		int[] eldValues = new int[width * height];
-		allocationEldad.copyTo(eldValues);
-
-		int bufferSize = 10;
-
-		int x1 = getSeedX(frame, 45f, bufferSize);
-		int x2 = getSeedX(frame, 66f, bufferSize);
-		int x3 = getSeedX(frame, 73f, bufferSize);
-		int y1 = getSeedY(frame, 55f, bufferSize);
-		int y2 = getSeedY(frame, 76f, bufferSize);
-		int y3 = getSeedY(frame, 47f, bufferSize);
-
-		int[] spgValues = spg.getSirpinsky(x1, y1, x2, y2, x3, y3);
-		for (int i = 0; i < spg.getSize(); i++) {
-			int x = spgValues[i * 2];
-			int y = spgValues[i * 2 + 1];
-			eldValues[(y * width) + x] = paletteSize;
-		}
-		allocationSeed.copyFrom(eldValues);
-	}
-
-	private int getSeedX(int frame, float frequency, int bufferSize) {
-		return (int) ((Math.sin(frame / frequency) + 1) / 2f
-				* (width - bufferSize * 2) + bufferSize);
-	}
-
-	private int getSeedY(int frame, float frequency, int bufferSize) {
-		int drawArea = height * 2 / 3;
-		int spaceAboveDrawArea = height - drawArea;
-		return (int) ((Math.sin(frame / frequency) + 1) / 2f
-				* (drawArea - bufferSize * 2) + bufferSize)
-				+ spaceAboveDrawArea;
+	private void renderSirpinsky(int frame) {
+		allocationEldad.copyTo(sirpinskyPoints);
+		spg.renderSirpinsky(frame, paletteSize, sirpinskyPoints);
+		allocationSeed.copyFrom(sirpinskyPoints);
 	}
 
 	private void renderEld() {
@@ -122,7 +99,7 @@ public class EldGenerator {
 	}
 
 	private void copyToBitmap() {
-		int[] bitmapValues = new int[width * height];
+		
 		allocationColorized.copyTo(bitmapValues);
 		bitmap.setPixels(bitmapValues, 0, width, 0, 0, width, height);
 	}
