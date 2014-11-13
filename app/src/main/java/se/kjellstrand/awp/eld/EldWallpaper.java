@@ -13,107 +13,108 @@ import android.view.SurfaceHolder;
  */
 public class EldWallpaper extends WallpaperService {
 
-    EldGenerator eldGenerator = null;
+	@Override
+	public Engine onCreateEngine() {
 
-    int height = 400;
-    int width = 400;
+		return new EldWPEngine();
+	}
 
-    @Override
-    public Engine onCreateEngine() {
-        eldGenerator = new EldGenerator(getApplicationContext(), width, height);
-        return new EldWPEngine();
-    }
+	class EldWPEngine extends Engine {
 
-    class EldWPEngine extends  Engine {
+		private static final int FPS = 60;
 
-        private Handler mHandler = new Handler();
+		private EldGenerator eldGenerator = null;
 
-        private Runnable mIteration = new Runnable() {
-            public void run() {
-                iteration();
-                drawFrame();
-            }
-        };
+		private Handler mHandler = new Handler();
 
-        private boolean mVisible;
-        private int frame;
+		private Runnable mIteration = new Runnable() {
+			public void run() {
+				iteration();
+				drawFrame();
+			}
+		};
 
-        @Override
-        public void onDestroy() {
-            super.onDestroy();
-            // stop the animation
-            mHandler.removeCallbacks(mIteration);
-        }
+		private boolean mVisible;
+		private int frame;
 
-        @Override
-        public void onVisibilityChanged(boolean visible) {
-            mVisible = visible;
-            if (visible) {
-                iteration();
-                drawFrame();
-            } else {
-                // stop the animation
-                mHandler.removeCallbacks(mIteration);
-            }
-        }
+		private float scale = 8.0f;
 
-        @Override
-        public void onSurfaceChanged(SurfaceHolder holder, int format,
-                                     int width, int height) {
-            iteration();
-            drawFrame();
-        }
+		@Override
+		public void onDestroy() {
+			super.onDestroy();
+			// stop the animation
+			mHandler.removeCallbacks(mIteration);
+		}
 
-        @Override
-        public void onSurfaceDestroyed(SurfaceHolder holder) {
-            super.onSurfaceDestroyed(holder);
-            mVisible = false;
-            // stop the animation
-            mHandler.removeCallbacks(mIteration);
-        }
+		@Override
+		public void onVisibilityChanged(boolean visible) {
+			mVisible = visible;
+			if (visible) {
+				iteration();
+				drawFrame();
+			} else {
+				// stop the animation
+				mHandler.removeCallbacks(mIteration);
+			}
+		}
 
-        @Override
-        public void onOffsetsChanged(float xOffset, float yOffset,
-                                     float xOffsetStep, float yOffsetStep, int xPixelOffset,
-                                     int yPixelOffset) {
-            iteration();
-            drawFrame();
-        }
+		@Override
+		public void onSurfaceChanged(SurfaceHolder holder, int format,
+				int width, int height) {
+			eldGenerator = new EldGenerator(getApplicationContext(),
+					(int) (width / scale), (int) (height / scale));
+			iteration();
+			drawFrame();
+		}
 
-        protected void drawFrame() {
-            SurfaceHolder holder = getSurfaceHolder();
+		@Override
+		public void onSurfaceDestroyed(SurfaceHolder holder) {
+			super.onSurfaceDestroyed(holder);
+			mVisible = false;
+			// stop the animation
+			mHandler.removeCallbacks(mIteration);
+		}
 
-            Canvas c = null;
-            try {
-                c = holder.lockCanvas();
-                if (c != null) {
-                    draw(c);
-                }
-            } finally {
-                if (c != null)
-                    holder.unlockCanvasAndPost(c);
-            }
-        }
+		@Override
+		public void onOffsetsChanged(float xOffset, float yOffset,
+				float xOffsetStep, float yOffsetStep, int xPixelOffset,
+				int yPixelOffset) {
+			iteration();
+			drawFrame();
+		}
 
-        private void draw(Canvas c) {
-            Bitmap bitmap = eldGenerator.getBitmapForFrame(frame++);
-            Paint paint = new Paint();
-            paint.setColor(0xffffffff);
+		protected void drawFrame() {
+			SurfaceHolder holder = getSurfaceHolder();
 
-            Matrix matrix = new Matrix();
-            matrix.reset();
-            // TODO find min size and save for use here.
-            matrix.setScale(1000/width, 1000/height);
+			Canvas c = null;
+			try {
+				c = holder.lockCanvas();
+				if (c != null) {
+					draw(c);
+				}
+			} finally {
+				if (c != null)
+					holder.unlockCanvasAndPost(c);
+			}
+		}
+
+		private void draw(Canvas c) {
+			Bitmap bitmap = eldGenerator.getBitmapForFrame(frame++);
+			Paint paint = new Paint();
+			paint.setColor(0xffffffff);
+
+			Matrix matrix = new Matrix();
+			matrix.reset();
+			matrix.setScale(scale, scale);
 			c.drawBitmap(bitmap, matrix, paint);
-        }
+		}
 
-        protected void iteration() {
-            // Reschedule the next redraw in 40ms
-            mHandler.removeCallbacks(mIteration);
-            if (mVisible) {
-            	// TODO make constant?
-                mHandler.postDelayed(mIteration, 1000 / 60);
-            }
-        }
-    }
+		protected void iteration() {
+			// Reschedule the next redraw in 40ms
+			mHandler.removeCallbacks(mIteration);
+			if (mVisible) {
+				mHandler.postDelayed(mIteration, 1000 / FPS);
+			}
+		}
+	}
 }

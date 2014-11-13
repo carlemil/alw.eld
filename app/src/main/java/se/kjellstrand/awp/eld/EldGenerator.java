@@ -18,8 +18,8 @@ public class EldGenerator {
 	private Allocation allocationEldad;
 	private Allocation allocationColorized;
 
-	private int width;
-	private int height;
+	public int width;
+	public int height;
 
 	private ScriptC_colorize coloriseScript;
 
@@ -81,17 +81,15 @@ public class EldGenerator {
 		int[] eldValues = new int[width * height];
 		allocationEldad.copyTo(eldValues);
 		
-		// TODO break out to method
-		int x1 = (int) ((Math.sin(frame / 45f) + 1) / 2f * (width - 4) + 2);
-		int y1 = (int) ((Math.cos(frame / 53f) + 1) / 2f * ((height / 2) - 4)
-				+ 2 + height / 2);
-		int x2 = (int) ((Math.sin(frame / 66f) + 1) / 2f * (width - 4) + 2);
-		int y2 = (int) ((Math.cos(frame / 76f) + 1) / 2f * ((height / 2) - 4)
-				+ 2 + height / 2);
-		int x3 = (int) ((Math.sin(frame / 73f) + 1) / 2f * (width - 4) + 2);
-		int y3 = (int) ((Math.cos(frame / 47f) + 1) / 2f * ((height / 2) - 4)
-				+ 2 + height / 2);
-
+		int bufferSize = 10;
+		
+		int x1 = getSeed(frame, 45f, bufferSize);
+		int x2 = getSeed(frame, 66f, bufferSize);
+		int x3 = getSeed(frame, 73f, bufferSize);
+		int y1 = getSeed(frame, 55f, bufferSize);
+		int y2 = getSeed(frame, 76f, bufferSize);
+		int y3 = getSeed(frame, 47f, bufferSize);
+		
 		int[] spgValues = spg.getSirpinsky(x1, y1, x2, y2, x3, y3);
 		for (int i = 0; i < spg.getSize(); i++) {
 			int x = spgValues[i * 2];
@@ -99,6 +97,10 @@ public class EldGenerator {
 			eldValues[(y * width) + x] = paletteSize;
 		}
 		allocationSeed.copyFrom(eldValues);
+	}
+
+	private int getSeed(int frame, float frequency, int bufferSize) {
+		return (int) ((Math.sin(frame / frequency) + 1) / 2f * (width - bufferSize*2) + bufferSize);
 	}
 
 	private void renderEld() {
@@ -133,6 +135,7 @@ public class EldGenerator {
 		eldaScript = new ScriptC_elda(rs);
 		eldaScript.set_width(width);
 		eldaScript.set_height(height);
+		eldaScript.set_fadeOutSpeed(4);
 	}
 
 	private void setupPalette(Context context, int[] colors) {
