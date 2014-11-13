@@ -15,8 +15,8 @@ void root(const int *in, int *out, uint32_t x, uint32_t y) {
 		const int v12 = *(const int*)rsGetElementAt(inAllocation, pos + 1);
 		const int v21 = *(const int*)rsGetElementAt(inAllocation, pos + width);
 		int v = (*in + v10 + v12 + v21 - fadeOutSpeed)>>2;
-		if(v<1){
-			v=0;
+		if( v < 1 ) {
+			v = 0;
 		}	
 		*out = v;
 	}

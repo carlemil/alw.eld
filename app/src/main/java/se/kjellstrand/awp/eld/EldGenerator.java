@@ -31,9 +31,13 @@ public class EldGenerator {
 	
 	private int[] sirpinskyPoints;
 	
-	int[] bitmapValues;
+	private int[] bitmapValues;
 
-	private int paletteSize = 200;
+	private int paletteSize = 512;
+	
+	private int nbrOfSirpinskyPoints = 300;
+	
+	private int eldFadeOutSpeed = 8;
 
 	public EldGenerator(Context context, int width, int height) {
 		this.width = width;
@@ -55,7 +59,7 @@ public class EldGenerator {
 				0xffffffff };
 		setupPalette(context, colors);
 
-		spg = new SirpinskyGenerator(250, width, height);
+		spg = new SirpinskyGenerator(nbrOfSirpinskyPoints , width, height);
 		sirpinskyPoints = new int[width * height];
 	}
 
@@ -99,7 +103,6 @@ public class EldGenerator {
 	}
 
 	private void copyToBitmap() {
-		
 		allocationColorized.copyTo(bitmapValues);
 		bitmap.setPixels(bitmapValues, 0, width, 0, 0, width, height);
 	}
@@ -121,7 +124,7 @@ public class EldGenerator {
 		eldaScript = new ScriptC_elda(rs);
 		eldaScript.set_width(width);
 		eldaScript.set_height(height);
-		eldaScript.set_fadeOutSpeed(4);
+		eldaScript.set_fadeOutSpeed(eldFadeOutSpeed );
 	}
 
 	private void setupPalette(Context context, int[] colors) {

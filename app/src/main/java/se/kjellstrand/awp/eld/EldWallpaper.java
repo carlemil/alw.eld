@@ -24,36 +24,34 @@ public class EldWallpaper extends WallpaperService {
 		private static final int FPS = 60;
 
 		private EldGenerator eldGenerator = null;
+		private Handler handler = new Handler();
+		private boolean visible;
+		private int frame = (int) System.currentTimeMillis()/1000;
+		private float scale = 4.0f;
 
-		private Handler mHandler = new Handler();
-
-		private Runnable mIteration = new Runnable() {
+		private Runnable iteration = new Runnable() {
 			public void run() {
 				iteration();
 				drawFrame();
 			}
 		};
 
-		private boolean mVisible;
-		private int frame = 0;
-		private float scale = 8.0f;
-
 		@Override
 		public void onDestroy() {
 			super.onDestroy();
 			// stop the animation
-			mHandler.removeCallbacks(mIteration);
+			handler.removeCallbacks(iteration);
 		}
 
 		@Override
 		public void onVisibilityChanged(boolean visible) {
-			mVisible = visible;
+			this.visible = visible;
 			if (visible) {
 				iteration();
 				drawFrame();
 			} else {
 				// stop the animation
-				mHandler.removeCallbacks(mIteration);
+				handler.removeCallbacks(iteration);
 			}
 		}
 
@@ -69,9 +67,9 @@ public class EldWallpaper extends WallpaperService {
 		@Override
 		public void onSurfaceDestroyed(SurfaceHolder holder) {
 			super.onSurfaceDestroyed(holder);
-			mVisible = false;
+			visible = false;
 			// stop the animation
-			mHandler.removeCallbacks(mIteration);
+			handler.removeCallbacks(iteration);
 		}
 
 		@Override
@@ -109,9 +107,9 @@ public class EldWallpaper extends WallpaperService {
 		}
 
 		protected void iteration() {
-			mHandler.removeCallbacks(mIteration);
-			if (mVisible) {
-				mHandler.postDelayed(mIteration, 1000 / FPS);
+			handler.removeCallbacks(iteration);
+			if (visible) {
+				handler.postDelayed(iteration, 1000 / FPS);
 			}
 		}
 	}
