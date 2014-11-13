@@ -83,12 +83,12 @@ public class EldGenerator {
 		
 		int bufferSize = 10;
 		
-		int x1 = getSeed(frame, 45f, bufferSize);
-		int x2 = getSeed(frame, 66f, bufferSize);
-		int x3 = getSeed(frame, 73f, bufferSize);
-		int y1 = getSeed(frame, 55f, bufferSize);
-		int y2 = getSeed(frame, 76f, bufferSize);
-		int y3 = getSeed(frame, 47f, bufferSize);
+		int x1 = getSeedX(frame, 45f, bufferSize);
+		int x2 = getSeedX(frame, 66f, bufferSize);
+		int x3 = getSeedX(frame, 73f, bufferSize);
+		int y1 = getSeedX(frame, 55f, bufferSize);
+		int y2 = getSeedX(frame, 76f, bufferSize);
+		int y3 = getSeedX(frame, 47f, bufferSize);
 		
 		int[] spgValues = spg.getSirpinsky(x1, y1, x2, y2, x3, y3);
 		for (int i = 0; i < spg.getSize(); i++) {
@@ -99,8 +99,12 @@ public class EldGenerator {
 		allocationSeed.copyFrom(eldValues);
 	}
 
-	private int getSeed(int frame, float frequency, int bufferSize) {
+	private int getSeedX(int frame, float frequency, int bufferSize) {
 		return (int) ((Math.sin(frame / frequency) + 1) / 2f * (width - bufferSize*2) + bufferSize);
+	}
+
+	private int getSeedY(int frame, float frequency, int bufferSize) {
+		return (int) ((Math.sin(frame / frequency) + 1) / 2f * (height/2 - bufferSize*2) + bufferSize)+height/2;
 	}
 
 	private void renderEld() {

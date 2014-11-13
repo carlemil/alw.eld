@@ -35,8 +35,7 @@ public class EldWallpaper extends WallpaperService {
 		};
 
 		private boolean mVisible;
-		private int frame;
-
+		private int frame = 0;
 		private float scale = 8.0f;
 
 		@Override
@@ -110,7 +109,6 @@ public class EldWallpaper extends WallpaperService {
 		}
 
 		protected void iteration() {
-			// Reschedule the next redraw in 40ms
 			mHandler.removeCallbacks(mIteration);
 			if (mVisible) {
 				mHandler.postDelayed(mIteration, 1000 / FPS);
