@@ -64,26 +64,25 @@ public class EldGenerator {
 	}
 
 	public Bitmap getBitmapForFrame(int frame) {
-		long t = System.currentTimeMillis();
+//		long t = System.currentTimeMillis();
 		renderSirpinsky(frame);
-		rs.finish();
-		Log.d(TAG, "seedEldAsLine: " + (System.currentTimeMillis() - t));
-
-		t = System.currentTimeMillis();
+//		rs.finish();
+//		Log.d(TAG, "seedEldAsLine: " + (System.currentTimeMillis() - t));
+//
+//		t = System.currentTimeMillis();
 		renderEld();
-		rs.finish();
-		Log.d(TAG, "renderEld: " + (System.currentTimeMillis() - t));
-
-		t = System.currentTimeMillis();
+//		rs.finish();
+//		Log.d(TAG, "renderEld: " + (System.currentTimeMillis() - t));
+//
+//		t = System.currentTimeMillis();
 		renderColors();
-		rs.finish();
-		Log.d(TAG, "renderColors: " + (System.currentTimeMillis() - t));
-
-		t = System.currentTimeMillis();
+//		rs.finish();
+//		Log.d(TAG, "renderColors: " + (System.currentTimeMillis() - t));
+//
+//		t = System.currentTimeMillis();
 		copyToBitmap();
-		rs.finish();
-		Log.d(TAG, "renderToBitmap: " + (System.currentTimeMillis() - t));
-
+//		rs.finish();
+//		Log.d(TAG, "renderToBitmap: " + (System.currentTimeMillis() - t));
 		return bitmap;
 	}
 
